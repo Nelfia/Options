@@ -1,0 +1,33 @@
+<div class="row">
+    <div class="col-md-12 title title-without-tabs">
+        {intl d='option.bo.default' l="Gestion des options payantes"}
+    </div>
+</div>
+<div class="form-container">
+    {include file = "product/include/add_option_product_form.html"}
+</div>
+<div class="image-manager form-container">
+{ifloop rel="option_list"}
+{loop name="option_list" table_name="product_available_option" type="generic" filters="product_id:{$product_id}"}
+    {$CURENT_OPTION_ID = $OPTION_ID}
+    {loop name="option" table_name="option_product" type="generic" filters="id:{$OPTION_ID}"}
+        {$OPTION_PRODUCT_ID = $PRODUCT_ID}
+    {/loop}
+    {loop name="option_product_list" type="product" visible="*" only_option=1 id=$OPTION_PRODUCT_ID|default:null backend_context="1" }
+        <div class="dropzone">
+            <div class="row">
+                <div class="col-md-8">
+                    <h3>{$TITLE} - {$REF}</h3>
+                    <h3 style="color: #FF9805">{format_money number=$BEST_TAXED_PRICE}</h3>
+                </div>
+                <div class="col-md-4">
+                    <a class="btn btn-danger pull-right" href="{url path="/admin/option/product/delete" product_id=$product_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-remove-circle"></a>
+                    <a class="btn btn-info pull-right"><span class="glyphicon glyphicon glyphicon-cog"></a>
+                    <a class="btn btn-default pull-right"><span class="glyphicon glyphicon glyphicon glyphicon-eye-open"></a>
+                </div>
+            </div>
+        </div>
+    {/loop}
+{/loop}
+{/ifloop}
+</div>

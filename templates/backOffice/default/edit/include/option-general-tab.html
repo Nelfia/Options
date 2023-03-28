@@ -1,0 +1,111 @@
+<div class="form-container">
+
+    {form name="thelia.admin.product.modification"}
+    <form method="POST" action="{url path='/admin/option/update'}" {form_enctype} class="clearfix">
+
+        <div class="row inner-toolbar">
+            <div class="col-md-3 inner-actions">
+                <ul class="nav nav-pills">
+                    {loop name="lang_list" type="lang" backend_context="1"}
+                        <li {if $ID == $edit_language_id}class="active"{/if}>
+                            {if $current_tab}
+                                {$lang_url = {url path={$page_url|default:$current_url nofilter} edit_language_id=$ID current_tab=$current_tab}}
+                            {else}
+                                {$lang_url = {url path={$page_url|default:$current_url nofilter} edit_language_id=$ID}}
+                            {/if}
+                            <a class="language-change-button" data-language-id="{$ID}" href="{$lang_url nofilter}" title="{intl l='Edit information in %lng' lng={$TITLE}}">
+                                <img src="{image file="assets/img/flags/$CODE.png"}" alt=$TITLE />
+                            </a>
+                        </li>
+                    {/loop}
+                </ul>
+            </div>
+            <div class="col-md-3 inner-actions">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="button-group">
+                            {loop name="currency_list" type="currency" backend_context="1"}
+                                <a class="btn btn-sm {if $ID == $edit_currency_id}btn-primary{else}btn-default{/if}" href="{url noamp=1 path={$page_url|default:$current_url nofilter} edit_currency_id=$ID product_id=$product_id current_tab='prices'}" title="{intl l='Edit prices in %curr' curr={$NAME}}">
+                                    {$SYMBOL}
+                                </a>
+                            {/loop}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6 inner-actions text-right">
+                <button type="submit" class="form-submit-button btn btn-sm btn-default btn-success" title="{intl l='Save'}">{intl l='Save'} <span class="glyphicon glyphicon-ok"></span></button>
+                <a href="{url path='/admin/module/Option'}" class="page-close-button btn btn-sm btn-default">{intl l='Close'} <span class="glyphicon glyphicon-remove"></span></a>
+            </div>
+        </div>
+
+        {hook name="product.modification.form_top" product_id=$ID}
+
+        {* Be sure to get the product ID, even if the form could not be validated*}
+        <input type="hidden" name="page" value="{$page}" />
+        <input type="hidden" name="option_id" value="{$product_id}">
+        <input type="hidden" name="current_tab" value="general">
+
+        {form_field field='default_category'}
+            <input type="hidden" name="{$name}" value="{$value}">
+        {/form_field}
+
+        {form_field field='brand_id'}
+            <input type="hidden" name="{$name}" value="0">
+        {/form_field}
+
+        {form_hidden_fields}
+
+        {form_field field='id'}
+            <input type="hidden" name="{$name}" value="{$value}">
+        {/form_field}
+
+        {form_field field='success_url'}
+            <input type="hidden" name="{$name}" value="{navigate to="current"}">
+        {/form_field}
+
+        {form_field field='error_url'}
+            <input type="hidden" name="{$name}" value="{navigate to="current"}">
+        {/form_field}
+
+        {form_field field='locale'}
+            <input type="hidden" name="{$name}" value="{$edit_language_locale}">
+        {/form_field}
+
+        {if $form_error}<div class="alert alert-danger">{$form_error_message}</div>{/if}
+
+        <div class="row">
+            <div class="col-md-12">
+                {form_field field='ref'}
+                    <div class="form-group {if $error}has-error{/if}">
+                        <label for="{$label_attr.for}" class="control-label">
+                            {intl l="Référence Option" d='option.bo.default'} : {if $required}*{/if}
+                        </label>
+                        <div class="control-input">
+                            <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}"{if $required} aria-required="true" required{/if}>
+                        </div>
+                    </div>
+                {/form_field}
+
+                {form_field field='title'}
+                    <div class="form-group {if $error}has-error{/if}">
+                        <label for="{$label_attr.for}" class="control-label">
+                            {intl l="Titre Option" d='option.bo.default'} : {if $required}*{/if}
+                        </label>
+                        <div class="control-input">
+                            <input type="text" id="{$label_attr.for}" name="{$name}" class="form-control" value="{$value}"{if $required} aria-required="true" required{/if}>
+                        </div>
+                    </div>
+                {/form_field}
+
+                {render_form_field field="description" extra_class="wysiwyg"}
+            </div>
+        </div>
+
+        {hook name="product.modification.form_bottom" product_id=$ID}
+
+        <small>{intl l='Option created on %date_create. Last modification: %date_change' date_create={format_date date=$CREATE_DATE} date_change={format_date date=$UPDATE_DATE}}</small>
+    </form>
+    {/form}
+</div>

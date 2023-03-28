@@ -1,0 +1,167 @@
+{extends file="admin-layout.tpl"}
+
+{block name="no-return-functions"}
+    {$admin_current_location = 'catalog'}
+    {$page={$page|default:{$smarty.get.page|default:1}}}
+    {$current_tab={$current_tab|default:{$smarty.get.current_tab|default:"general"}}}
+{/block}
+
+{block name="check-resource"}admin.product{/block}
+{block name="check-access"}update{/block}
+
+{block name="page-title"}{intl l='Edit option'}{/block}
+
+{block name="main-content"}
+    <div class="catalog edit-product">
+        <div id="wrapper" class="container">
+            <div class="row">
+                {$product_id = $option_id}
+                {loop name="product_edit" type="product" only_option=1 visible="*" id=$option_id backend_context="1" with_prev_next_info=true lang=$edit_language_id}
+                <div class="col-md-12 general-block-decorator">
+                    <div class="row">
+                        <div class="col-md-7 title">
+                            {intl l='Edit option %title' title={$TITLE}}{if $REF} ({intl l='ref.:'} {$REF}){/if}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="nav nav-tabs" id="tabbed-menu">
+                                <li {if $current_tab=="general"}class="active"{/if}><a href="#general" data-toggle="tab">{intl l="General"}</a></li>
+                                <li {if $current_tab=="prices"}class="active"{/if}><a href="#prices" data-toggle="tab">{intl l="Price"}</a></li>
+                            </ul>
+                            <div class="tab-content">
+                                <div class="tab-pane {if $current_tab!=="general"}fade{else}active{/if}" id="general">
+                                    {include file="edit/include/option-general-tab.html"}
+                                </div>
+
+                                <div class="tab-pane {if $current_tab!=="prices"}fade{else}active{/if}" id="prices">
+                                    {include file="edit/include/option-price-tab.html"}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {/loop}
+            </div>
+        </div>
+    </div>
+{/block}
+
+{block name="javascript-initialization"}
+    {javascripts file='assets/js/bootstrap-editable/bootstrap-editable.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
+    {javascripts file='assets/js/bootstrap-switch/bootstrap-switch.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
+    {javascripts file='assets/js/jquery.typewatch.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
+    {javascripts file='assets/js/jquery-ui-1.10.3.custom.min.js'}
+        <script src="{$asset_url}"></script>
+    {/javascripts}
+
+    <script>
+        $(function() {
+            var baseAdminUrl = "{url path="/admin"}";
+
+            $('.nav-tabs a[data-trigger]').on('shown.bs.tab', function(ev) {
+                var $this = $(this);
+                var trigger = $this.data('trigger');
+                var triggers = trigger.split('::');
+                if (triggers.length == 2) {
+                    $(triggers[0]).trigger(triggers[1]);
+                }
+            });
+
+            $('.use_exchange_rate_box').change(function(ev) {
+
+                if ($(this).is(':checked')) {
+
+                    var pse_id = $(this).data('pse-id');
+
+                    $('.price_field').prop('readonly', true);
+
+                    // Reload prices
+                    $.ajax({
+                        url      : '{url path="/admin/product/load-converted-prices"}',
+                        data     : {
+                            product_sale_element_id : pse_id,
+                            currency_id             : {$edit_currency_id}
+                        },
+                        type     : 'get',
+                        dataType : 'json',
+                        success  : function(json) {
+                            $('input[data-pse-id="'+pse_id+'"][data-price-type="price-with-tax"]').val(json.price_with_tax);
+                            $('input[data-pse-id="'+pse_id+'"][data-price-type="price-without-tax"]').val(json.price_without_tax);
+                            $('input[data-pse-id="'+pse_id+'"][data-price-type="sale-price-with-tax"]').val(json.sale_price_with_tax);
+                            $('input[data-pse-id="'+pse_id+'"][data-price-type="sale-price-without-tax"]').val(json.sale_price_without_tax);
+                        },
+                        error : function(jqXHR, textStatus, errorThrown) {
+                            alert("{intl l='Failed to get converted prices. Please try again.'} (" +errorThrown+ ")");
+                        }
+                    });
+
+                }
+                else {
+                    $('.price_field').prop('readonly', false)
+                }
+            });
+
+            function update_price(price, price_type, dest_field_id) {
+                var tax_rule_id = $('#tax_rule_field').val();
+
+                if (tax_rule_id != "") {
+                    var operation;
+
+                    if (price_type.indexOf('with-tax') != -1) {
+                        operation = 'from_tax';
+                    }
+                    else if (price_type.indexOf('without-tax') != -1) {
+                        operation = 'to_tax';
+                    }
+                    else {
+                        operation = '';
+                    }
+
+                    $.ajax({
+                        url      : '{url path="/admin/product/calculate-price"}',
+                        data     : {
+                            price      : price,
+                            action     : operation,
+                            product_id : {$product_id}
+                        },
+                        type     : 'get',
+                        dataType : 'json',
+                        success  : function(json) {
+                            $('#' + dest_field_id).val(json.result);
+                        },
+                        error : function(jqXHR, textStatus, errorThrown) {
+                            alert("{intl l='Failed to get prices. Please try again.'} (" +errorThrown+ ")");
+                        }
+                    });
+                }
+            }
+
+            $('.automatic_price_field').typeWatch({
+                captureLength: 1,
+                wait         : 300,
+                callback     : function () {
+                    var price = $(this).val();
+                    $(this).val(sanitizeFloat(price));
+                    update_price($(this).val(), $(this).data('price-type'), $(this).data('rel-price'));
+                }
+            });
+
+            function sanitizeFloat(numVal) {
+                return numVal.replace(",", ".");
+            }
+        });
+    </script>
+{/block}
+
+{block name="javascript-last-call"}
+    {hook name="product.edit-js" location="product-edit-js" product_id={$option_id} }
+
+    {hook name="wysiwyg.js" location="wysiwyg-product-edit-js" }
+{/block}
