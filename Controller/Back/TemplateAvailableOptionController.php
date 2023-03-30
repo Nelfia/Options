@@ -3,55 +3,42 @@
 namespace Option\Controller\Back;
 
 use Exception;
-use Option\Model\ProductAvailableOptionQuery;
-use Thelia\Model\Category;
-use Option\Form\CategoryAvailableOptionForm;
+use Option\Form\TemplateAvailableOptionForm;
 use Option\Service\OptionProduct;
 use Propel\Runtime\Exception\PropelException;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Log\Tlog;
-use Thelia\Model\CategoryQuery;
+use Thelia\Model\TemplateQuery;
 use Thelia\Tools\URL;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
- * @Route("/admin/option/category", name="admin_option_category")
+ * @Route("/admin/option/template", name="admin_option_template")
  */
 class TemplateAvailableOptionController extends BaseAdminController
 {
-    /** @Route("/show/{templateId}", name="_option_template_show", methods="GET") */
-    public function showTemplateOptionsProduct(int $categoryId): Response
+    /** @Route("/set", name="_option_templates_set", methods="POST") */
+    public function setOptionProductOnTemplate(OptionProduct $optionProductService): Response
     {
-        return $this->render(
-            'category/category-option-tab',
-            [
-                'category_id' => $categoryId
-            ]
-        );
-    }
-
-    /** @Route("/set", name="_option_category_set", methods="POST") */
-    public function setOptionProductOnCategory(OptionProduct $optionProductService): Response
-    {
-        $form = $this->createForm(CategoryAvailableOptionForm::class);
+        $form = $this->createForm(TemplateAvailableOptionForm::class);
 
         try {
             $viewForm = $this->validateForm($form);
             $data = $viewForm->getData();
-            $category = CategoryQuery::create()->findPk($data['category_id']);
-            $optionProductService->setOptionOnProductCategory($category, $data['option_id']);
+            $template = TemplateQuery::create()->findPk($data['template_id']);
+            $optionProductService->setOptionOnProductTemplate($template, $data['option_id']);
 
             return $this->generateSuccessRedirect($form);
         } catch (Exception $ex) {
             $errorMessage = $ex->getMessage();
 
-            Tlog::getInstance()->error("Failed to validate product option form: $errorMessage");
+            Tlog::getInstance()->error("Failed to validate template option form: $errorMessage");
         }
 
         $this->setupFormErrorContext(
-            'Failed to process category option tab form data',
+            'Failed to process template option tab form data',
             $errorMessage,
             $form
         );
@@ -60,76 +47,28 @@ class TemplateAvailableOptionController extends BaseAdminController
     }
 
     /**
-     * @Route("/delete", name="_option_category_delete", methods="GET")
+     * @Route("/delete", name="_option_template_delete", methods="GET")
      *  @throws PropelException */
-    public function deleteOptionProduct( Request $request, OptionProduct $optionProductService): Response
+    public function deleteOptionProductOnTemplate( Request $request, OptionProduct $optionProductService): Response
     {
         try {
             $optionProductId = $request->get('option_product_id');
-            $categoryId = $request->get('category_id');
+            $templateId = $request->get('template_id');
 
-            if (!$optionProductId || !$categoryId) {
+            if (!$optionProductId || !$templateId) {
                 return $this->pageNotFound();
             }
 
-            $category = CategoryQuery::create()->findPk($categoryId);
-            $optionProductService->deleteOptionOnProductCategory($category, $optionProductId);
+            $template = TemplateQuery::create()->findPk($templateId);
+            $optionProductService->deleteOptionOnProductTemplate($template, $optionProductId);
 
         } catch (\Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());
         }
 
-        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/categories/update', [
-            "current_tab" => "category_option_tab",
-            "category_id" => $categoryId
+        return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/configuration/templates/update', [
+            "current_tab" => "template_option_tab",
+            "template_id" => $templateId
         ]));
-    }
-
-    /**
-     * @Route("/test", name="_option_category_test", methods="GET")
-     *
-     * @throws PropelException
-     */
-    public function test( Request $request ): Response
-    {
-        $categoryId = $request->get('category_id');
-        $optionProductId = $request->get('option_product_id');
-        $categoryProductsWithOption = $this->getProductsWithOptionOnCategory(CategoryQuery::create()->findPk
-        ($categoryId), $optionProductId);
-
-        return $this->render(
-            'category/test',
-            [
-                'category_id' => $categoryId,
-                'option_product_id' => $optionProductId,
-                'category_option_product_ids' => $categoryProductsWithOption
-            ]
-        );
-    }
-
-    /**
-     * Returns an array with the category's product wich have the specified option.
-     * @param Category $category
-     * @param int|null $optionId
-     * @return Product[]
-     */
-    private function getProductsWithOptionOnCategory(Category $category, ?int $optionId) : array
-    {
-        $productsWithOptionIds = [];
-        $categoryProducts = $category->getProducts();
-
-        $productsAvalaibleOption = ProductAvailableOptionQuery::create()->findByOptionId($optionId);
-        foreach ($categoryProducts as $categoryProduct){
-            foreach ($productsAvalaibleOption as $productAvailableOption){
-                if($categoryProduct->getId() === $productAvailableOption->getProductId()){
-                    $productsWithOptionIds[] = $categoryProduct->getId();
-                }
-            }
-        }
-
-        return $productsWithOptionIds;
-    }
-
-    public function updateProductsOptionOnCategory(OptionProduct $optionProductService) : Response {
     }
 }

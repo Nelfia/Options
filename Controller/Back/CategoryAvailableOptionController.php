@@ -41,7 +41,8 @@ class CategoryAvailableOptionController extends BaseAdminController
             $viewForm = $this->validateForm($form);
             $data = $viewForm->getData();
             $category = CategoryQuery::create()->findPk($data['category_id']);
-            $optionProductService->setOptionOnProductCategory($category, $data['option_id']);
+            $optionProductService->setOptionOnCategory($category->getId(), $data['option_id']);
+            $optionProductService->setOptionOnCategoryProducts($category, $data['option_id']);
 
             return $this->generateSuccessRedirect($form);
         } catch (Exception $ex) {
@@ -62,7 +63,7 @@ class CategoryAvailableOptionController extends BaseAdminController
     /**
      * @Route("/delete", name="_option_category_delete", methods="GET")
      *  @throws PropelException */
-    public function deleteOptionProduct( Request $request, OptionProduct $optionProductService): Response
+    public function deleteOptionProductOnCategory( Request $request, OptionProduct $optionProductService): Response
     {
         try {
             $optionProductId = $request->get('option_product_id');
@@ -109,6 +110,7 @@ class CategoryAvailableOptionController extends BaseAdminController
 
     /**
      * Returns an array with the category's product wich have the specified option.
+     *
      * @param Category $category
      * @param int|null $optionId
      * @return Product[]

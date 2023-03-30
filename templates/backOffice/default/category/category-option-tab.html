@@ -12,7 +12,7 @@
 {loop name="category_products_list" type="product" category="$category_id" order="id"}
     {$idProduct=$ID}
 {/loop}
-{ifloop rel="option_list"}
+
 {loop name="option_list" table_name="product_available_option" type="generic" filters="product_id:{$idProduct}"}
     {$CURENT_OPTION_ID = $OPTION_ID}
     {loop name="option" table_name="option_product" type="generic" filters="id:{$OPTION_ID}"}
@@ -37,7 +37,6 @@
         </div>
     {/loop}
 {/loop}
-{/ifloop}
 </div>
 
 

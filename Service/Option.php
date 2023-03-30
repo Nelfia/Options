@@ -111,11 +111,14 @@ class Option
     }
 
     /**
+     * Retrieves and returns the list of products (which are options) attached to the product passed in parameter.
+     * If the option id is specified, returns only the corresponding product in the product table.
+     *
      * @param Product $product
      * @param null $optionProduct
      * @return array|null
      */
-    public function getProductAvailableOptions(Product $product, $optionProduct = null)
+    public function getProductAvailableOptions(Product $product, $optionProduct = null): ?array
     {
         $productAvailableOptions = ProductAvailableOptionQuery::create()
             ->filterByProductId($product->getId());

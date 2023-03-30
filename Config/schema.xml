@@ -51,6 +51,64 @@
         </unique>
     </table>
 
+    <table name="category_available_option" namespace="Option\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="category_id" required="true" type="INTEGER" />
+        <column name="option_id" required="true" type="INTEGER" />
+
+        <foreign-key foreignTable="category" name="fk_category_available_option_product_id" onDelete="CASCADE"
+                     onUpdate="RESTRICT">
+            <reference foreign="id" local="category_id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="option_product" name="fk_category_available_option_option_id" onDelete="CASCADE"
+                     onUpdate="RESTRICT">
+            <reference foreign="id" local="option_id" />
+        </foreign-key>
+
+        <index name="idx_category_available_option_category_id">
+            <index-column name="category_id" />
+        </index>
+
+        <index name="idx_category_available_option_option_id">
+            <index-column name="option_id" />
+        </index>
+
+        <unique name="category_available_option_UNIQUE">
+            <unique-column name="category_id" />
+            <unique-column name="option_id" />
+        </unique>
+    </table>
+
+    <table name="template_available_option" namespace="Option\Model">
+        <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
+        <column name="template_id" required="true" type="INTEGER" />
+        <column name="option_id" required="true" type="INTEGER" />
+
+        <foreign-key foreignTable="template" name="fk_template_available_option_product_id" onDelete="CASCADE"
+                     onUpdate="RESTRICT">
+            <reference foreign="id" local="template_id" />
+        </foreign-key>
+
+        <foreign-key foreignTable="option_product" name="fk_template_available_option_option_id" onDelete="CASCADE"
+                     onUpdate="RESTRICT">
+            <reference foreign="id" local="option_id" />
+        </foreign-key>
+
+        <index name="idx_template_available_option_template_id">
+            <index-column name="template_id" />
+        </index>
+
+        <index name="idx_template_available_option_option_id">
+            <index-column name="option_id" />
+        </index>
+
+        <unique name="template_available_option_UNIQUE">
+            <unique-column name="template_id" />
+            <unique-column name="option_id" />
+        </unique>
+    </table>
+
     <table name="option_cart_item_customization" namespace="Option\Model">
         <column autoIncrement="true" name="id" primaryKey="true" required="true" type="INTEGER" />
         <column name="product_available_option_id" type="INTEGER" required="true"/>
