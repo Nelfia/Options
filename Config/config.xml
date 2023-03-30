@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<config xmlns="http://thelia.net/schema/dic/config"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://thelia.net/schema/dic/config http://thelia.net/schema/dic/config/thelia-1.0.xsd">
+
+    <loops>
+        <loop name="option-cart-item-loop" class="Option\Loop\OptionCartItem"/>
+        <loop name="option-product-loop" class="Option\Loop\OptionProductLoop"/>
+        <loop name="product-available-option-loop" class="Option\Loop\ProductAvailableOptionLoop"/>
+    </loops>
+
+    <services>
+        <service id="option.cart_item.service" alias="Option\Service\Front\OptionCartItemService" public="true">
+        </service>
+    </services>
+</config>

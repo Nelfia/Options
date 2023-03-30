@@ -1,0 +1,15 @@
+{capture "option_delete_dialog"}
+    <input type="hidden" name="product_id" id="option_delete_id" value="" />
+    <input type="hidden" name="page" value="{$page}">
+{/capture}
+
+{include
+    file = "includes/generic-confirm-dialog.html"
+
+    dialog_id       = "option_delete_dialog"
+    dialog_title    = {intl l="Delete option" d=$domain}
+    dialog_message  = {intl l="Do you really want to delete this option and all it's components (images, documents)?<br>This can't be canceled." d=$domain}
+
+    form_action         = {token_url path='/admin/option/delete'}
+    form_content        = {$smarty.capture.option_delete_dialog nofilter}
+}

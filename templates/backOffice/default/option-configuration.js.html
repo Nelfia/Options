@@ -1,0 +1,48 @@
+<script>
+    $(function () {
+        $('a.option-delete').click(function(ev) {
+            $('#option_delete_id').val($(this).data('id'));
+        });
+
+        function update_price(price, price_type, dest_field_id) {
+            var tax_rule_id = $('#tax_rule_field').val();
+            if (tax_rule_id != "") {
+                var operation;
+
+                if (price_type.indexOf('with-tax') != -1)
+                    operation = 'from_tax';
+                else if (price_type.indexOf('without-tax') != -1)
+                    operation = 'to_tax';
+                else
+                    operation = '';
+
+                $.ajax({
+                    url: '{url path="/admin/product/calculate-raw-price"}',
+                    data: {
+                        price: price,
+                        action: operation,
+                        tax_rule: tax_rule_id
+                    },
+                    type: 'get',
+                    dataType: 'json',
+                    success: function (json) {
+                        $('#' + dest_field_id).val(json.result);
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        alert("{intl l='Failed to get prices. Please try again.'} (" + errorThrown + ")");
+                    }
+                });
+            }
+        }
+
+        function sanitizeFloat(numVal) {
+            return numVal.replace(",", ".");
+        };
+
+        $('.automatic_price_field').on('keyup', function () {
+            var price = $(this).val();
+            $(this).val(sanitizeFloat(price));
+            update_price($(this).val(), $(this).data('price-type'), $(this).data('rel-price'));
+        });
+    });
+</script>

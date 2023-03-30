@@ -1,0 +1,66 @@
+<div class="row">
+    <div class="col-md-12" id="product-pack-form">
+        <div class="form-container">
+            {form name="category_available_option_form"}
+                <form method="POST" action="{url path='/admin/option/category/set'}" id="option_category_form">
+                    {form_hidden_fields form=$form}
+
+                    {form_field field="error_url"}
+                        <input type="hidden" name="{$name}"
+                               value="{url path='/admin/categories/update' current_tab="category_option_tab"
+                               category_id=$category_id}"/>
+                    {/form_field}
+
+                    {form_field field="success_url"}
+                        <input type="hidden" name="{$name}"
+                               value="{url path='/admin/categories/update' current_tab="category_option_tab" success=1
+                               category_id=$category_id}"/>
+                    {/form_field}
+
+                    {form_field field="category_id"}
+                        <input type="hidden" name="{$name}" value="{$category_id}"/>
+                    {/form_field}
+
+                    {if $form_error && !$success|default:0}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="alert alert-danger">{$form_error_message}</div>
+                            </div>
+                        </div>
+                    {/if}
+                    {if $success|default:0}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="success">{intl d='option.bo.default' l="Option liée au produit avec succès"}</div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    <div class="well well-sm">
+                        <p>{intl d='option.bo.default' l="Ajoutez des options payantes à votre rubrique. Vous pourrez
+                            ensuite définir les configurations pour la saisie des informations lors de l'achat d'un des produits de la
+                            rubrique"}</p>
+                        <label for="template_id" class="control-label">
+                            {intl d='option.bo.default' l="Liste des options disponibles :"}
+                        </label>
+                        {form_field field="option_id"}
+                            <div class="input-group">
+                                <select name="{$name}" required="required" class="form-control">
+                                    <option selected disabled value="">{intl d='option.bo.default' l="Choisir une option..."}</option>
+                                    {foreach $choices as $choice}
+                                        <option value="{$choice->value}">{$choice->label nofilter}</option>
+                                    {/foreach}
+                                </select>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary action-btn" type="submit">
+                                        {intl d='option.bo.default' l="Appliquer"}
+                                    </button>
+                                </span>
+                            </div>
+                        {/form_field}
+                    </div>
+                </form>
+            {/form}
+        </div>
+    </div>
+</div>
