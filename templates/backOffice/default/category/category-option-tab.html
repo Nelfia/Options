@@ -9,11 +9,8 @@
 </div>
 
 <div class="image-manager form-container">
-{loop name="category_products_list" type="product" category="$category_id" order="id"}
-    {$idProduct=$ID}
-{/loop}
 
-{loop name="option_list" table_name="product_available_option" type="generic" filters="product_id:{$idProduct}"}
+{loop name="option_list" table_name="category_available_option" type="generic" filters="category_id:{$category_id}"}
     {$CURENT_OPTION_ID = $OPTION_ID}
     {loop name="option" table_name="option_product" type="generic" filters="id:{$OPTION_ID}"}
         {$OPTION_PRODUCT_ID = $PRODUCT_ID}

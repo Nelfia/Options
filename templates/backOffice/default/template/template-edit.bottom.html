@@ -19,23 +19,32 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {foreach $template_option_products as $optionId => $optionProduct}
+                {loop name="option_list" table_name="template_available_option" type="generic"
+                filters="template_id:{$template_id}"}
+                    {$CURENT_OPTION_ID = $OPTION_ID}
+                    {loop name="option" table_name="option_product" type="generic" filters="id:{$OPTION_ID}"}
+                        {$OPTION_PRODUCT_ID = $PRODUCT_ID}
+                    {/loop}
+                    {loop name="option_product_list" type="product" only_option=1 visible="*" id="$OPTION_PRODUCT_ID"|default:null
+                    backend_context="1" }
                         <tr>
-                            <td>{$optionId}</td>
-                            <td>{$optionProduct->getRef()}</td>
+                            <td>{$CURENT_OPTION_ID}</td>
+                            <td>{$REF}</td>
                             <td>
                                 <a href="{url
-                                path="/admin/option/update" option_id=$optionId}">{$optionProduct->getTitle()}</a>
+                                path="/admin/option/update" option_id=$ID}">{$TITLE}</a>
                             </td>
-                            <td></td>
-                            <td class="text-right"><a class="btn btn-default btn-xs" title="Supprimer" href="{url
-                                path="/admin/option/template/delete"
-                                template_id=$template_id option_product_id=$optionId}">
-                                    <span class="glyphicon glyphicon-trash">
-                                    </span>
-                                </a></td>
+                            <td>{format_money number=$BEST_TAXED_PRICE}</td>
+                            <td class="text-right">
+                                <a class="btn btn-default btn-xs" title="Supprimer" href="{url
+                                path="/admin/option/template/delete" template_id=$template_id
+                                option_product_id=$CURENT_OPTION_ID}">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                </a>
+                            </td>
                         </tr>
-                    {/foreach}
+                    {/loop}
+                {/loop}
                 </tbody>
             </table>
         </div>

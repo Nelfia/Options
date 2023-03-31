@@ -170,11 +170,11 @@ class OptionController extends BaseAdminController
 
         $return_price = $price;
 
-        if ($action == 'to_tax') {
+        if ($action === 'to_tax') {
             $return_price = $calculator->getTaxedPrice($price);
         }
 
-        if ($action == 'from_tax') {
+        if ($action === 'from_tax') {
             $return_price = $calculator->getUntaxedPrice($price);
         }
 

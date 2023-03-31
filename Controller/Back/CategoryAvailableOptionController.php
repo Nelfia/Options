@@ -4,10 +4,10 @@ namespace Option\Controller\Back;
 
 use Exception;
 use Option\Model\ProductAvailableOptionQuery;
+use Thelia\Model\Base\Product;
 use Thelia\Model\Category;
 use Option\Form\CategoryAvailableOptionForm;
 use Option\Service\OptionProduct;
-use Propel\Runtime\Exception\PropelException;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Log\Tlog;
@@ -75,7 +75,7 @@ class CategoryAvailableOptionController extends BaseAdminController
             $category = CategoryQuery::create()->findPk($categoryId);
             $optionProductService->deleteOptionOnCategoryProducts($category, $optionProductId);
 
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());
         }
 
@@ -86,9 +86,8 @@ class CategoryAvailableOptionController extends BaseAdminController
     }
 
     /**
+     * WIP - Lists category's products.
      * @Route("/test", name="_option_category_test", methods="GET")
-     *
-     * @throws PropelException
      */
     public function test( Request $request ): Response
     {
@@ -131,6 +130,4 @@ class CategoryAvailableOptionController extends BaseAdminController
         return $productsWithOptionIds;
     }
 
-    public function updateProductsOptionOnCategory(OptionProduct $optionProductService) : Response {
-    }
 }

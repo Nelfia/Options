@@ -5,7 +5,6 @@ namespace Option\Controller\Back;
 use Exception;
 use Option\Form\ProductAvailableOptionForm;
 use Option\Service\OptionProduct;
-use Propel\Runtime\Exception\PropelException;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Log\Tlog;
@@ -63,8 +62,6 @@ class ProductAvailableOptionController extends BaseAdminController
 
     /**
      * @Route("/delete", name="_option_product_delete", methods="GET")
-     *
-     * @throws PropelException
      */
     public function deleteOptionProduct(
         Request       $request,
@@ -81,13 +78,13 @@ class ProductAvailableOptionController extends BaseAdminController
 
             $optionProductService->deleteOptionOnProduct($optionProductId, $productId);
 
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());
         }
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/products/update', [
             "current_tab" => "product_option_tab",
-            "product_id" => $productId
+            "product_id" => $productId ?? null
         ]));
     }
 }
