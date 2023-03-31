@@ -1,7 +1,6 @@
 <script>
     const optionsContainerElt = document.getElementById('options-container');
     const pElts = Array.from(document.getElementsByClassName('title-without-tabs'));
-    console.log(pElts);
-    let divParent = pElts[4].parentElement.parentElement.parentElement;
+    const divParent = pElts[4].parentElement.parentElement.parentElement;
     divParent.append(optionsContainerElt);
 </script>

@@ -36,6 +36,7 @@ CREATE TABLE `product_available_option`
     `option_id` INTEGER NOT NULL,
     `product_sale_elements_id` INTEGER,
     `product_available_option_customization` TEXT,
+    `option_added_by` JSON,
     PRIMARY KEY (`id`),
     UNIQUE INDEX `product_available_option_UNIQUE` (`product_id`, `option_id`, `product_sale_elements_id`),
     INDEX `idx_product_available_option_product_id` (`product_id`),
