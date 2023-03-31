@@ -43,7 +43,7 @@ class ProductAvailableOptionController extends BaseAdminController
             $viewForm = $this->validateForm($form);
             $data = $viewForm->getData();
 
-            $optionProductService->setOptionOnProduct($data['product_id'], $data['option_id']);
+            $optionProductService->setOptionOnProduct($data['product_id'], $data['option_id'], $optionProductService::ADDED_BY_PRODUCT);
 
             return $this->generateSuccessRedirect($form);
         } catch (Exception $ex) {

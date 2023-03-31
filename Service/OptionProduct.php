@@ -14,18 +14,38 @@ use Thelia\Model\Template;
 
 class OptionProduct
 {
+    public const ADDED_BY_PRODUCT = 1;
+    public const ADDED_BY_CATEGORY = 2;
+    public const ADDED_BY_TEMPLATE = 3;
+
     /**
      * @throws PropelException
      */
-    public function setOptionOnProduct(int $productId, int $optionId): void
+    public function setOptionOnProduct(int $productId, int $optionId, int $added_by = 1): void
     {
         $product = ProductQuery::create()->findPk($productId);
         $option = OptionProductQuery::create()->findPk($optionId);
+        $curentProductAvailableOption = ProductAvailableOptionQuery::create()->filterByProductId($productId)
+            ->filterByOptionId($optionId)->find();
+
+        $new_added_by = [];
+        if ($curentProductAvailableOption){
+            $curent_added_by = $curentProductAvailableOption->getColumnValues('OptionAddedBy');
+            if($curent_added_by) {
+                foreach ($curent_added_by[0] as $item) {
+                    if ($item !== $added_by) {
+                        $new_added_by[] = $item;
+                    }
+                }
+            }
+        }
+        $new_added_by[] = $added_by;
 
         ProductAvailableOptionQuery::create()
             ->filterByProductId($product->getId())
             ->filterByOptionId($option->getId())
             ->findOneOrCreate()
+            ->setOptionAddedBy(json_encode($new_added_by))
             ->save();
     }
 
@@ -50,7 +70,7 @@ class OptionProduct
     public function setOptionOnCategoryProducts(Category $category, int $optionId): void
     {
         foreach ($category->getProducts() as $product) {
-            $this->setOptionOnProduct($product->getId(), $optionId);
+            $this->setOptionOnProduct($product->getId(), $optionId, self::ADDED_BY_CATEGORY);
         }
     }
 
@@ -60,7 +80,7 @@ class OptionProduct
     public function setOptionOnProductTemplate(Template $template, int $optionId): void
     {
         foreach ($template->getProducts() as $product) {
-            $this->setOptionOnProduct($product->getId(), $optionId);
+            $this->setOptionOnProduct($product->getId(), $optionId, self::ADDED_BY_TEMPLATE);
         }
     }
 
