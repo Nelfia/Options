@@ -64,6 +64,17 @@ class OptionProduct
      */
     public function setOptionOnCategoryProducts(Category $category, int $optionId): void
     {
+        $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
+        if($categoryChildren){
+            foreach ($categoryChildren as $categoryChild){
+                CategoryAvailableOptionQuery::create()
+                    ->filterByCategoryId($categoryChild->getId())
+                    ->filterByOptionId($optionId)
+                    ->findOneOrCreate()
+                    ->save();
+            }
+        }
+
         CategoryAvailableOptionQuery::create()
             ->filterByCategoryId($category->getId())
             ->filterByOptionId($optionId)
@@ -145,7 +156,7 @@ class OptionProduct
     /**
      * Removes an option according to its origin.
      *
-     * Only options with a single origin (OptionAddedBy column) are completely deleted.
+     * Only options with a single origin or removed on the product (OptionAddedBy column) are completely deleted.
      * If an option has been added to the product by a category and a template, only the origin of the option that is
      * being deleted is removed.
      *
@@ -165,13 +176,14 @@ class OptionProduct
             ->filterByOptionId($optionId)
             ->filterByProductId($productId)
             ->findOne();
-
-        $addedBy = $productAvailableOption->getOptionAddedBy();
-        if(!$force && count($addedBy) > 1){
-            unset($addedBy[array_search($deletedBy, $addedBy, true)]);
-            $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
-        } else {
-            $productAvailableOption->delete();
+        if($productAvailableOption){
+            $addedBy = $productAvailableOption?->getOptionAddedBy();
+            if($deletedBy === self::ADDED_BY_PRODUCT || (!$force && count($addedBy) > 1)){
+                unset($addedBy[array_search($deletedBy, $addedBy, true)]);
+                $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+            } else {
+                $productAvailableOption->delete();
+            }
         }
     }
 
@@ -185,6 +197,16 @@ class OptionProduct
      */
     public function deleteOptionOnCategoryProducts(Category $category, int $optionId): void
     {
+        $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
+        if($categoryChildren){
+            foreach ($categoryChildren as $categoryChild){
+                CategoryAvailableOptionQuery::create()
+                    ->filterByCategoryId($categoryChild->getId())
+                    ->filterByOptionId($optionId)
+                    ->delete();
+            }
+        }
+
         CategoryAvailableOptionQuery::create()
             ->filterByOptionId($optionId)
             ->filterByCategoryId($category->getId())
