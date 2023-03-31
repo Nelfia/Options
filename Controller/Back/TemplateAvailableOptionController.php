@@ -5,7 +5,6 @@ namespace Option\Controller\Back;
 use Exception;
 use Option\Form\TemplateAvailableOptionForm;
 use Option\Service\OptionProduct;
-use Propel\Runtime\Exception\PropelException;
 use Thelia\Controller\Admin\BaseAdminController;
 use Thelia\Core\HttpFoundation\Request;
 use Thelia\Log\Tlog;
@@ -19,7 +18,12 @@ use Symfony\Component\Routing\Annotation\Route;
  */
 class TemplateAvailableOptionController extends BaseAdminController
 {
-    /** @Route("/set", name="_option_templates_set", methods="POST") */
+    /**
+     * @param OptionProduct $optionProductService
+     * @return Response
+     *
+     * @Route("/set", name="_option_templates_set", methods="POST")
+     */
     public function setOptionProductOnTemplate(OptionProduct $optionProductService): Response
     {
         $form = $this->createForm(TemplateAvailableOptionForm::class);
@@ -28,7 +32,7 @@ class TemplateAvailableOptionController extends BaseAdminController
             $viewForm = $this->validateForm($form);
             $data = $viewForm->getData();
             $template = TemplateQuery::create()->findPk($data['template_id']);
-            $optionProductService->setOptionOnProductTemplate($template, $data['option_id']);
+            $optionProductService->setOptionOnTemplateProducts($template, $data['option_id']);
 
             return $this->generateSuccessRedirect($form);
         } catch (Exception $ex) {
@@ -47,8 +51,12 @@ class TemplateAvailableOptionController extends BaseAdminController
     }
 
     /**
+     * @param Request $request
+     * @param OptionProduct $optionProductService
+     * @return Response
+     *
      * @Route("/delete", name="_option_template_delete", methods="GET")
-     *  @throws PropelException */
+     */
     public function deleteOptionProductOnTemplate( Request $request, OptionProduct $optionProductService): Response
     {
         try {
@@ -60,7 +68,7 @@ class TemplateAvailableOptionController extends BaseAdminController
             }
 
             $template = TemplateQuery::create()->findPk($templateId);
-            $optionProductService->deleteOptionOnProductTemplate($template, $optionProductId);
+            $optionProductService->deleteOptionOnTemplateProducts($template, $optionProductId);
 
         } catch (\Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());
@@ -68,7 +76,7 @@ class TemplateAvailableOptionController extends BaseAdminController
 
         return $this->generateRedirect(URL::getInstance()->absoluteUrl('/admin/configuration/templates/update', [
             "current_tab" => "template_option_tab",
-            "template_id" => $templateId
+            "template_id" => $templateId ?? null
         ]));
     }
 }

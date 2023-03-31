@@ -6,6 +6,7 @@ use OpenApi\Model\Api\Product;
 use Option\Model\CategoryAvailableOptionQuery;
 use Option\Model\OptionProductQuery;
 use Option\Model\ProductAvailableOptionQuery;
+use Option\Model\TemplateAvailableOptionQuery;
 use Propel\Runtime\Exception\PropelException;
 use Thelia\Model\Category;
 use Thelia\Model\CategoryQuery;
@@ -19,66 +20,77 @@ class OptionProduct
     public const ADDED_BY_TEMPLATE = 3;
 
     /**
+     * Sets an option on a product.
+     *
+     * @param int $productId
+     * @param int $optionId
+     * @param int $added_by origin of the new added option
+     * @return void
      * @throws PropelException
      */
-    public function setOptionOnProduct(int $productId, int $optionId, int $added_by = 1): void
+    public function setOptionOnProduct(int $productId, int $optionId, int $addedBy = 1): void
     {
         $product = ProductQuery::create()->findPk($productId);
         $option = OptionProductQuery::create()->findPk($optionId);
         $curentProductAvailableOption = ProductAvailableOptionQuery::create()->filterByProductId($productId)
             ->filterByOptionId($optionId)->find();
 
-        $new_added_by = [];
-        if ($curentProductAvailableOption){
-            $curent_added_by = $curentProductAvailableOption->getColumnValues('OptionAddedBy');
-            if($curent_added_by) {
-                foreach ($curent_added_by[0] as $item) {
-                    if ($item !== $added_by) {
-                        $new_added_by[] = $item;
-                    }
+        $newAddedBy = [];
+        $curentAddedBy = $curentProductAvailableOption?->getColumnValues('OptionAddedBy');
+        if($curentAddedBy) {
+            foreach ($curentAddedBy[0] as $item) {
+                if ($item !== $addedBy) {
+                    $newAddedBy[] = $item;
                 }
             }
         }
-        $new_added_by[] = $added_by;
+        $newAddedBy[] = $addedBy;
 
         ProductAvailableOptionQuery::create()
             ->filterByProductId($product->getId())
             ->filterByOptionId($option->getId())
             ->findOneOrCreate()
-            ->setOptionAddedBy(json_encode($new_added_by))
+            ->setOptionAddedBy(json_encode($newAddedBy))
             ->save();
     }
 
     /**
-     * @throws PropelException
-     */
-    public function setOptionOnCategory(int $categoryId, int $optionId): void
-    {
-        $category = CategoryQuery::create()->findPk($categoryId);
-        $option = OptionProductQuery::create()->findPk($optionId);
-
-        CategoryAvailableOptionQuery::create()
-            ->filterByCategoryId($category->getId())
-            ->filterByOptionId($option->getId())
-            ->findOneOrCreate()
-            ->save();
-    }
-
-    /**
+     * Sets an option on Category's products.
+     *
+     * @param Category $category
+     * @param int $optionId
+     * @return void
      * @throws PropelException
      */
     public function setOptionOnCategoryProducts(Category $category, int $optionId): void
     {
+        CategoryAvailableOptionQuery::create()
+            ->filterByCategoryId($category->getId())
+            ->filterByOptionId($optionId)
+            ->findOneOrCreate()
+            ->save();
+
         foreach ($category->getProducts() as $product) {
             $this->setOptionOnProduct($product->getId(), $optionId, self::ADDED_BY_CATEGORY);
         }
     }
 
     /**
+     * Sets an option on Template's products.
+     *
+     * @param Template $template
+     * @param int $optionId
+     * @return void
      * @throws PropelException
      */
-    public function setOptionOnProductTemplate(Template $template, int $optionId): void
+    public function setOptionOnTemplateProducts(Template $template, int $optionId): void
     {
+       TemplateAvailableOptionQuery::create()
+            ->filterByTemplateId($template->getId())
+            ->filterByOptionId($optionId)
+            ->findOneOrCreate()
+            ->save();
+
         foreach ($template->getProducts() as $product) {
             $this->setOptionOnProduct($product->getId(), $optionId, self::ADDED_BY_TEMPLATE);
         }
@@ -101,6 +113,10 @@ class OptionProduct
         return $templateOptionProducts;
     }
 
+    /**
+     * @param Product $product
+     * @return array|null
+     */
     public function getOptionProductsOnProduct(Product $product): ?array
     {
         $productAvalaibleOptions = ProductAvailableOptionQuery::create()
@@ -127,33 +143,75 @@ class OptionProduct
     }
 
     /**
-     * @throws PropelException
+     * Removes an option according to its origin.
+     *
+     * Only options with a single origin (OptionAddedBy column) are completely deleted.
+     * If an option has been added to the product by a category and a template, only the origin of the option that is
+     * being deleted is removed.
+     *
+     * If you want to completely remove the option from the product, even if it has multiple origins, just pass the
+     * optional parameter $force=true)
+     *
+     * @param int $optionId
+     * @param int $productId
+     * @param int $deletedBy
+     * @param bool $force if TRUE, removes option totaly.
+     * @return void
+     * @throws PropelException|\JsonException
      */
-    public function deleteOptionOnProduct(int $optionProductId, int $productId): void
+    public function deleteOptionOnProduct(int $optionId, int $productId, int $deletedBy = 1, bool $force = false): void
     {
-        ProductAvailableOptionQuery::create()
-            ->filterByOptionId($optionProductId)
+        $productAvailableOption = ProductAvailableOptionQuery::create()
+            ->filterByOptionId($optionId)
             ->filterByProductId($productId)
-            ->delete();
-    }
+            ->findOne();
 
-    /**
-     * @throws PropelException
-     */
-    public function deleteOptionOnProductCategory(Category $category, int $optionId): void
-    {
-        foreach ($category->getProducts() as $product) {
-            $this->deleteOptionOnProduct($optionId, $product->getId());
+        $addedBy = $productAvailableOption->getOptionAddedBy();
+        if(!$force && count($addedBy) > 1){
+            unset($addedBy[array_search($deletedBy, $addedBy, true)]);
+            $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+        } else {
+            $productAvailableOption->delete();
         }
     }
 
     /**
-     * @throws PropelException
+     * Removes an option on Category's products.
+     *
+     * @param Category $category
+     * @param int $optionId
+     * @return void
+     * @throws PropelException|\JsonException
      */
-    public function deleteOptionOnProductTemplate(Template $template, int $optionId): void
+    public function deleteOptionOnCategoryProducts(Category $category, int $optionId): void
     {
+        CategoryAvailableOptionQuery::create()
+            ->filterByOptionId($optionId)
+            ->filterByCategoryId($category->getId())
+            ->delete();
+
+        foreach ($category->getProducts() as $product) {
+            $this->deleteOptionOnProduct($optionId, $product->getId(), self::ADDED_BY_CATEGORY);
+        }
+    }
+
+    /**
+     * Removes an option on Template's products.
+     *
+     * @param Template $template
+     * @param int $optionId
+     * @return void
+     * @throws PropelException|\JsonException
+     */
+    public function deleteOptionOnTemplateProducts(Template $template, int $optionId): void
+    {
+        TemplateAvailableOptionQuery::create()
+            ->filterByOptionId($optionId)
+            ->filterByTemplateId($template->getId())
+            ->delete();
+
         foreach ($template->getProducts() as $product) {
-            $this->deleteOptionOnProduct($optionId, $product->getId());
+            $this->deleteOptionOnProduct($optionId, $product->getId(), self::ADDED_BY_TEMPLATE);
         }
     }
 }
