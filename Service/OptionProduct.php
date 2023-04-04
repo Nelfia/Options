@@ -192,24 +192,28 @@ class OptionProduct
      *
      * @param Category $category
      * @param int $optionId
+     * @param bool $deleteAll
      * @return void
-     * @throws PropelException|\JsonException
+     * @throws PropelException | \JsonException
      */
-    public function deleteOptionOnCategoryProducts(Category $category, int $optionId): void
+    public function deleteOptionOnCategoryProducts(Category $category, int $optionId, bool $deleteAll): void
     {
-        $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
-        if($categoryChildren){
-            foreach ($categoryChildren as $categoryChild){
-                CategoryAvailableOptionQuery::create()
-                    ->filterByCategoryId($categoryChild->getId())
-                    ->filterByOptionId($optionId)
-                    ->delete();
+        if ($deleteAll){
+            $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
+
+            if($categoryChildren){
+                foreach ($categoryChildren as $categoryChild){
+                    CategoryAvailableOptionQuery::create()
+                        ->filterByCategoryId($categoryChild->getId())
+                        ->filterByOptionId($optionId)
+                        ->delete();
+                }
             }
         }
 
         CategoryAvailableOptionQuery::create()
-            ->filterByOptionId($optionId)
             ->filterByCategoryId($category->getId())
+            ->filterByOptionId($optionId)
             ->delete();
 
         foreach ($category->getProducts() as $product) {

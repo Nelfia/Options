@@ -1,0 +1,47 @@
+<div
+        id="dialog"
+        role="dialog"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-desc"
+        aria-modal="true"
+        aria-hidden="true"
+        tabindex="-1"
+        class="c-dialog modal-form">
+    <div role="document" class="c-dialog__box">
+        <h2 id="dialog-title">Voulez-vous supprimer l'option de cette rubrique ?</h2>
+        <p>Vous êtes sur le point de supprimer cette option de la rubrique. Où souhaitez-vous la supprimer :</p>
+        <form>
+            <label>
+                <input type="radio" name="deleteChoice" value="category" checked>
+                Dans la rubrique uniquement
+            </label>
+            <label>
+                <input type="radio" name="deleteChoice" value="categoryAndProducts">
+                Dans la rubrique uniquement et tous ses produits
+            </label>
+            <label>
+                <input type="radio" name="deleteChoice" value="categoriesAndProducts">
+                Dans la rubrique, ses sous-rubriques et leur produits.
+            </label>
+        </form>
+        <small> ⚠️ Si l'option a été ajoutée à un produit autrement que par sa rubrique, il la conservera.
+        </small>
+        <div class="btn-group" style="display:flex; gap:1rem">
+            <button id="dismissDeleteOptionModal"
+                    class="btn btn-large btn-danger"
+                    type="button"
+                    aria-label="Fermer"
+                    title="Fermer cette fenêtre modale"
+                    data-dismiss="dialog">Annuler
+            </button>
+            <button class="btn btn-large">
+                <a href="{url path="/admin/option/category/delete"
+                category_id=$category_id option_product_id=$CURENT_OPTION_ID delete_all=true}">
+                    Appliquer aux sous-rubriques</a>
+            </button>
+            <button class="btn btn-large">
+                <a href="{url path="/admin/option/category/delete"
+                category_id=$category_id option_product_id=$CURENT_OPTION_ID delete_all=false}">Je confirme</a></button>
+        </div>
+    </div>
+</div>

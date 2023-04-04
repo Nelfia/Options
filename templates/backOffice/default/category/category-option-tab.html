@@ -8,7 +8,7 @@
     {include file = "category/include/add_option_product_form.html"}
 </div>
 
-<div class="image-manager form-container">
+<div class="image-manager form-container js-page">
 
 {loop name="option_list" table_name="category_available_option" type="generic" filters="category_id:{$category_id}"}
     {$CURENT_OPTION_ID = $OPTION_ID}
@@ -23,9 +23,11 @@
                     <h3>{$TITLE} - {$REF}</h3>
                     <h3 style="color: #FF9805">{format_money number=$BEST_TAXED_PRICE}</h3>
                 </div>
-                <div class="col-md-4">
-                    <a class="btn btn-danger pull-right" href="{url path="/admin/option/category/delete"
-                    category_id=$category_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-remove-circle"></a>
+                <div class="col-md-4 js-document">
+                    <a class="btn btn-danger pull-right modal-open" id="delete" role="button"
+                       aria-haspopup="dialog" aria-controls="dialog" title="Supprimer l'option">
+                        <span class="glyphicon glyphicon glyphicon-remove-circle"></span></a>
+                        {include file="category/include/modale-delete-category-option.html"}
                     <a class="btn btn-info pull-right" href="{url path="/admin/option/category/test"
                     category_id=$category_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-cog"></a>
                     <a class="btn btn-default pull-right"><span class="glyphicon glyphicon glyphicon glyphicon-eye-open"></a>
@@ -35,6 +37,67 @@
     {/loop}
 {/loop}
 </div>
+
+
+
+<style>
+    .c-dialog {
+        cursor: default;
+        position: fixed;
+        z-index: 100;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        display: flex;
+        padding: 2.4rem;
+        -webkit-overflow-scrolling: touch;
+        background-color: rgba(0,0,0, .75);
+        transition: .2s;
+    }
+    .c-dialog__box {
+        flex: 1;
+        max-width: 48rem;
+        margin: auto;
+        padding: 2.4rem;
+        background-color: white;
+    }
+    .c-dialog[aria-hidden="true"] {
+        visibility: hidden;
+        opacity: 0;
+    }
+</style>
+<script>
+    const hasPopupBtns = document.querySelectorAll('[aria-haspopup="dialog"]');
+    const dissmissDialogs = document.querySelectorAll('[data-dismiss]');
+
+    const open = (dialog) => {
+        dialog.setAttribute('aria-hidden', false);
+    }
+
+    const close = (dialog) => {
+        dialog.setAttribute('aria-hidden', true);
+    }
+
+    hasPopupBtns.forEach((button => {
+        const dialog = document.getElementById(button.getAttribute('aria-controls'))
+        button.addEventListener('click', (event) => {
+            open(dialog);
+        })
+    }))
+
+    dissmissDialogs.forEach((dismissButton) => {
+        const dismissDialog = document.getElementById(dismissButton.dataset.dismiss);
+
+        dismissButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            close(dismissDialog);
+        })
+    })
+
+</script>
+
+
 
 
 
