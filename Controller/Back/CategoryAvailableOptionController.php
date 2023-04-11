@@ -69,12 +69,12 @@ class CategoryAvailableOptionController extends BaseAdminController
             $categoryId = $request->get('category_id');
             $deleteAll = $request->get('delete_all');
 
-            if (!$optionProductId || !$categoryId || !$deleteAll) {
+            if (!$optionProductId || !$categoryId || $deleteAll === null) {
                 return $this->pageNotFound();
             }
 
             $category = CategoryQuery::create()->findPk($categoryId);
-            $optionProductService->deleteOptionOnCategoryProducts($category, $optionProductId, $deleteAll);
+            $optionProductService->deleteOptionOnCategoryTree($category, $optionProductId, $deleteAll);
 
         } catch (Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());

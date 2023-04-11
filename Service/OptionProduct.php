@@ -65,6 +65,7 @@ class OptionProduct
     public function setOptionOnCategoryProducts(Category $category, int $optionId): void
     {
         $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
+
         if($categoryChildren){
             foreach ($categoryChildren as $categoryChild){
                 CategoryAvailableOptionQuery::create()
@@ -196,7 +197,7 @@ class OptionProduct
      * @return void
      * @throws PropelException | \JsonException
      */
-    public function deleteOptionOnCategoryProducts(Category $category, int $optionId, bool $deleteAll): void
+    public function deleteOptionOnCategoryTree(Category $category, int $optionId, bool $deleteAll): void
     {
         if ($deleteAll){
             $categoryChildren = CategoryQuery::create()->filterByParent($category->getId())->find();
@@ -209,6 +210,10 @@ class OptionProduct
                         ->delete();
                 }
             }
+
+            foreach ($category->getProducts() as $product) {
+                $this->deleteOptionOnProduct($optionId, $product->getId(), self::ADDED_BY_CATEGORY);
+            }
         }
 
         CategoryAvailableOptionQuery::create()
@@ -216,9 +221,6 @@ class OptionProduct
             ->filterByOptionId($optionId)
             ->delete();
 
-        foreach ($category->getProducts() as $product) {
-            $this->deleteOptionOnProduct($optionId, $product->getId(), self::ADDED_BY_CATEGORY);
-        }
     }
 
     /**
