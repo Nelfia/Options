@@ -12,6 +12,19 @@
                     <input name="productsWithOption[]" type="checkbox" {if in_array($ID, $category_option_product_ids)
                 }checked{/if} value={$ID}>ID: {$ID} - Rubrique: {$DEFAULT_CATEGORY} - {$TITLE}{if in_array($ID,
                 $category_option_product_ids)} - Option FOUND {/if}<br>
+                    <div class="combinations">
+                        LISTE DES DECLINAISONS DU PRODUIT:
+                        {loop name="pse" type="product_sale_elements" product={$ID}}
+                            <div>
+                                {loop name="combi" type="attribute_combination" product_sale_elements="$ID"}
+                                {$ATTRIBUTE_ID}. {$ATTRIBUTE_TITLE} = {$ATTRIBUTE_AVAILABILITY_ID}. {$ATTRIBUTE_AVAILABILITY_TITLE}<br />
+                                {/loop}
+                                <br />{$WEIGHT} g
+                                <br /><strong>{if $IS_PROMO == 1} {$PROMO_PRICE} € (instead of {$PRICE}) {else} {$PRICE} € {/if}</strong>
+                                <br /><br />
+                            </div>
+                        {/loop}
+                    </div>
                 {/loop}
                 <span class="input-group-btn">
                     <button class="btn btn-primary action-btn" type="submit">
