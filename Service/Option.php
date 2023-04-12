@@ -7,6 +7,7 @@ use LogicException;
 use Option\Event\CheckOptionEvent;
 use Option\Model\ProductAvailableOptionQuery;
 use Option\Option as OptionModule;
+use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\Form\Form;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 use Thelia\Core\Event\Product\ProductDeleteEvent;
@@ -33,9 +34,7 @@ class Option
         protected OptionProvider           $optionProvider,
         protected TaxEngine $taxEngine
     )
-    {
-
-    }
+    {}
 
     public function createOption(Form $form): void
     {
@@ -81,11 +80,7 @@ class Option
             ->endUse()
         ->findOne();
 
-        if (null !== $optionCategory) {
-            return $optionCategory;
-        }
-
-        return $this->createOptionCategory(OptionModule::OPTION_CATEGORY_TITLE);
+        return $optionCategory ?? $this->createOptionCategory(OptionModule::OPTION_CATEGORY_TITLE);
     }
 
     /**
@@ -127,7 +122,7 @@ class Option
             $productAvailableOptions->filterByOptionId($optionProduct->getId());
         }
 
-        $options = array_map(function ($productAvailableOption) {
+        $options = array_map(static function ($productAvailableOption) {
             return $productAvailableOption->getOptionProduct();
         }, iterator_to_array($productAvailableOptions->find()));
 
@@ -142,7 +137,13 @@ class Option
         return false === $event->isValid() ? [] : $event->getOptions();
     }
 
-    public function getOptionTaxedPrice(Product | \OpenApi\Model\Api\Product $option, $isPromo = false): float|int
+    /**
+     * @param Product|\OpenApi\Model\Api\Product $option
+     * @param bool $isPromo
+     * @return float|int
+     * @throws PropelException
+     */
+    public function getOptionTaxedPrice(Product | \OpenApi\Model\Api\Product $option, bool $isPromo = false): float|int
     {
         $taxCountry = $this->taxEngine->getDeliveryCountry();
         $taxState = $this->taxEngine->getDeliveryState();
