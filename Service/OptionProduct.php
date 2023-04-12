@@ -177,11 +177,14 @@ class OptionProduct
             ->filterByOptionId($optionId)
             ->filterByProductId($productId)
             ->findOne();
-        if($productAvailableOption){
-            $addedBy = $productAvailableOption?->getOptionAddedBy();
-            if($deletedBy === self::ADDED_BY_PRODUCT || (!$force && count($addedBy) > 1)){
-                unset($addedBy[array_search($deletedBy, $addedBy, true)]);
-                $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+
+        if(null !== $productAvailableOption){
+            if (!$force) {
+                $addedBy = $productAvailableOption->getOptionAddedBy();
+                if(count($addedBy) > 1) {
+                    unset($addedBy[array_search($deletedBy, $addedBy, true)]);
+                    $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+                }
             } else {
                 $productAvailableOption->delete();
             }
