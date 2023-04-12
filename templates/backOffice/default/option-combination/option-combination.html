@@ -1,0 +1,13 @@
+<h1>On est là !!!!</h1>
+<p>{$product_id}</p>
+<p>{$option_product_id}</p>
+
+{loop type="product_sale_elements" name="pse_list" product=$product_id}
+    <div class="product-combinations">
+        {loop name="product-combi" type="attribute_combination" product_sale_elements=$ID backend_context="on" }
+            <p>{$ATTRIBUTE_ID} {$ATTRIBUTE_TITLE}</p>
+            <p>{$ATTRIBUTE_AVAILABILITY_ID}. {$ATTRIBUTE_AVAILABILITY_TITLE} -> {$PRICE}</p>
+        {/loop}
+    </div>
+{/loop}
+
