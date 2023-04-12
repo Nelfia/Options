@@ -33,13 +33,16 @@ class CategoryAvailableOptionController extends BaseAdminController
     }
 
     /** @Route("/set", name="_option_category_set", methods="POST") */
-    public function setOptionProductOnCategory(OptionProduct $optionProductService): Response
+    public function setOptionProductOnCategory(Request $request, OptionProduct $optionProductService): Response
     {
         $form = $this->createForm(CategoryAvailableOptionForm::class);
 
         try {
             $viewForm = $this->validateForm($form);
             $data = $viewForm->getData();
+            $addAll = $data['add_all'];
+            var_dump($addAll);
+            die();
             $category = CategoryQuery::create()->findPk($data['category_id']);
             $optionProductService->setOptionOnCategoryProducts($category, $data['option_id']);
 

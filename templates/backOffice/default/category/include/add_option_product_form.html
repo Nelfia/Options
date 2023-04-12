@@ -52,10 +52,13 @@
                                     {/foreach}
                                 </select>
                                 <span class="input-group-btn">
-                                    <button class="btn btn-primary action-btn" type="submit">
+                                    <button class="btn btn-primary action-btn modal-open" type="button" id="add"
+                                    data-toggle="modal" data-target="#addOptionModal" title="Ajouter
+                                    l'option">
                                         {intl d='option.bo.default' l="Appliquer"}
                                     </button>
                                 </span>
+                                {include file="category/include/modale-add-option-on-category.html"}
                             </div>
                         {/form_field}
                     </div>
