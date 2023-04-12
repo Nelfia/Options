@@ -71,14 +71,14 @@ class ProductAvailableOptionController extends BaseAdminController
         try {
             $optionProductId = $request->get('option_product_id');
             $productId = $request->get('product_id');
-            $deletionForced = $request->get('force');
+            $force = $request->get('force');
 
-            if (!$optionProductId || !$productId || $deletionForced === null) {
+            if (!$optionProductId || !$productId || $force === null) {
                 return $this->pageNotFound();
             }
 
             $optionProductService->deleteOptionOnProduct($optionProductId, $productId,
-                OptionProduct::ADDED_BY_PRODUCT, $deletionForced);
+                OptionProduct::ADDED_BY_PRODUCT, $force);
 
         } catch (Exception $ex) {
             Tlog::getInstance()->addError($ex->getMessage());

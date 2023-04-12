@@ -183,7 +183,7 @@ class OptionProduct
                 $addedBy = $productAvailableOption->getOptionAddedBy();
                 if(count($addedBy) > 1) {
                     unset($addedBy[array_search($deletedBy, $addedBy, true)]);
-                    $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+                    $productAvailableOption->setOptionAddedBy($addedBy)->save();
                 }
             } else {
                 $productAvailableOption->delete();
