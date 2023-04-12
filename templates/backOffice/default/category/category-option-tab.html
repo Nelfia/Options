@@ -8,7 +8,7 @@
     {include file = "category/include/add_option_product_form.html"}
 </div>
 
-<div class="image-manager form-container">
+<div class="image-manager form-container js-page">
 
 {loop name="option_list" table_name="category_available_option" type="generic" filters="category_id:{$category_id}"}
     {$CURENT_OPTION_ID = $OPTION_ID}
@@ -23,18 +23,24 @@
                     <h3>{$TITLE} - {$REF}</h3>
                     <h3 style="color: #FF9805">{format_money number=$BEST_TAXED_PRICE}</h3>
                 </div>
-                <div class="col-md-4">
-                    <a class="btn btn-danger pull-right" href="{url path="/admin/option/category/delete"
-                    category_id=$category_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-remove-circle"></a>
-                    <a class="btn btn-info pull-right" href="{url path="/admin/option/category/test"
-                    category_id=$category_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-cog"></a>
-                    <a class="btn btn-default pull-right"><span class="glyphicon glyphicon glyphicon glyphicon-eye-open"></a>
+                <div class="col-md-4 js-document">
+                    <a class="btn btn-danger pull-right modal-open" id="delete" role="button"
+                       data-toggle="modal" data-target="#deleteOptionModal" title="Supprimer l'option">
+                        <span class="glyphicon glyphicon glyphicon-remove-circle"></span></a>
+                        {include file="category/include/modale-delete-category-option.html"}
+                    <a class="btn btn-info pull-right" href="{url path='/admin/option/category/test'
+                    category_id=$category_id option_product_id=$CURENT_OPTION_ID}">
+                        <span class="glyphicon glyphicon glyphicon-cog"></span>
+                    </a>
+                    <a class="btn btn-default pull-right"><span class="glyphicon glyphicon glyphicon glyphicon-eye-open"></span></a>
                 </div>
             </div>
         </div>
     {/loop}
 {/loop}
 </div>
+
+
 
 
 

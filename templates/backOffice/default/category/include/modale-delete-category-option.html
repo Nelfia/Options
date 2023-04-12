@@ -1,0 +1,35 @@
+<div id="deleteOptionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+                <h3 id="dialog-title" class="modal-title">Voulez-vous supprimer l'option de cette rubrique ?</h3>
+            </div>
+            <div class="modal-body">
+                <p>Vous êtes sur le point de supprimer l'option de cette rubrique. Si elle contient des sous-rubriques ou des produits, ils ne seront pas affectés.</p>
+                <small class="info"> ⚠️ Si l'option a été ajoutée à un produit autrement que par sa rubrique, il la conservera.</small>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group">
+                    <button id="dismissDeleteOptionModal"
+                            class="btn btn-default"
+                            type="button"
+                            aria-label="Close"
+                            data-dismiss="modal">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        Annuler
+                    </button>
+                    <button class="btn btn-primary" style="margin-left: 5px">
+                        <span class="glyphicon glyphicon-check"></span>
+                        <a style="color: white" href="{url path='/admin/option/category/delete' category_id=$category_id option_product_id=$CURENT_OPTION_ID delete_all=true}"> Supprimer de tout l'héritage</a>
+                    </button>
+                    <button class="btn btn-primary" style="margin-left: 5px">
+                        <span class="glyphicon glyphicon-check"></span>
+                        <a style="color: white" href="{url path='/admin/option/category/delete' category_id=$category_id option_product_id=$CURENT_OPTION_ID delete_all=false}">Je confirme</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

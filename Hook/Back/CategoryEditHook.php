@@ -33,4 +33,5 @@ class CategoryEditHook extends BaseHook
             ]
         );
     }
+
 }
