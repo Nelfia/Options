@@ -1,0 +1,39 @@
+<div id="deleteOptionModal" class="modal fade" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">x</span>
+                </button>
+                <h3 id="dialog-title" class="modal-title">Voulez-vous supprimer l'option de ce produit ?</h3>
+            </div>
+            <div class="modal-body">
+                <p>Vous êtes sur le point de supprimer l'option de ce produit. Si elle a été ajoutée par plusieurs
+                    origines (gabarit, rubrique...) elle apparaîtra toujours sur le produit (par héritage).</p>
+                <p>Vous pouvez choisir de la supprimer totalement du produit en cliquant sur "supprimer totalement".</p>
+            </div>
+            <div class="modal-footer">
+                <div class="btn-group">
+                    <button id="dismissDeleteOptionModal"
+                            class="btn btn-default"
+                            type="button"
+                            aria-label="Close"
+                            data-dismiss="modal">
+                        <span class="glyphicon glyphicon-remove"></span>
+                        Annuler
+                    </button>
+                    <button class="btn btn-primary" style="margin-left: 5px">
+                        <span class="glyphicon glyphicon-check"></span>
+                        <a style="color: white" href="{url path='/admin/option/product/delete'
+                        product_id=$product_id option_product_id=$CURENT_OPTION_ID force=true}"> Supprimer
+                            totalement</a>
+                    </button>
+                    <button class="btn btn-primary" style="margin-left: 5px">
+                        <span class="glyphicon glyphicon-check"></span>
+                        <a style="color: white" href="{url path='/admin/option/product/delete' product_id=$product_id
+                        option_product_id=$CURENT_OPTION_ID force=false}">Je confirme</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

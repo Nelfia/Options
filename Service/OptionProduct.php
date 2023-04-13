@@ -2,7 +2,7 @@
 
 namespace Option\Service;
 
-use OpenApi\Model\Api\Product;
+use JsonException;
 use Option\Model\CategoryAvailableOptionQuery;
 use Option\Model\OptionProductQuery;
 use Option\Model\ProductAvailableOptionQuery;
@@ -24,9 +24,9 @@ class OptionProduct
      *
      * @param int $productId
      * @param int $optionId
-     * @param int $added_by origin of the new added option
+     * @param int $addedBy origin of the new added option
      * @return void
-     * @throws PropelException
+     * @throws PropelException|JsonException
      */
     public function setOptionOnProduct(int $productId, int $optionId, int $addedBy = 1): void
     {
@@ -50,7 +50,7 @@ class OptionProduct
             ->filterByProductId($product->getId())
             ->filterByOptionId($option->getId())
             ->findOneOrCreate()
-            ->setOptionAddedBy(json_encode($newAddedBy))
+            ->setOptionAddedBy(json_encode($newAddedBy, JSON_THROW_ON_ERROR))
             ->save();
     }
 
@@ -60,7 +60,7 @@ class OptionProduct
      * @param Category $category
      * @param int $optionId
      * @return void
-     * @throws PropelException
+     * @throws PropelException|JsonException
      */
     public function setOptionOnCategoryProducts(Category $category, int $optionId): void
     {
@@ -93,7 +93,7 @@ class OptionProduct
      * @param Template $template
      * @param int $optionId
      * @return void
-     * @throws PropelException
+     * @throws PropelException|JsonException
      */
     public function setOptionOnTemplateProducts(Template $template, int $optionId): void
     {
@@ -106,52 +106,6 @@ class OptionProduct
         foreach ($template->getProducts() as $product) {
             $this->setOptionOnProduct($product->getId(), $optionId, self::ADDED_BY_TEMPLATE);
         }
-    }
-
-    /**
-     * Lists the options available in the template products.
-     *
-     * @throws PropelException
-     */
-    public function getOptionProductsOnTemplate(Template $template) : ?array
-    {
-        $templateProducts = $template->getProducts();
-        $templateOptionProducts = [];
-
-        foreach ($templateProducts as $templateProduct){
-            $templateOptionProducts[] = $this->getOptionProductsOnProduct($templateProduct);
-        }
-
-        return $templateOptionProducts;
-    }
-
-    /**
-     * @param Product $product
-     * @return array|null
-     */
-    public function getOptionProductsOnProduct(Product $product): ?array
-    {
-        $productAvalaibleOptions = ProductAvailableOptionQuery::create()
-            ->findByProductId($product->getId());
-
-        $optionIds = [];
-        foreach ($productAvalaibleOptions as $productAvalaibleOption) {
-            if (!in_array($productAvalaibleOption->getOptionId(), $optionIds, true)) {
-                $optionIds[] = $productAvalaibleOption->getOptionId();
-            }
-        }
-
-        $optionProductIds = [];
-        foreach ($optionIds as $optionId){
-            $optionProduct = OptionProductQuery::create()->findById($optionId);
-            $optionProductIds[] = $optionProduct->get('product_id');
-        }
-
-        $optionProducts = [];
-        foreach ($optionProductIds as $optionProductId){
-            $optionProducts[] = ProductQuery::create()->findPk($optionProductId);
-        }
-        return $optionProducts;
     }
 
     /**
@@ -169,7 +123,7 @@ class OptionProduct
      * @param int $deletedBy
      * @param bool $force if TRUE, removes option totaly.
      * @return void
-     * @throws PropelException|\JsonException
+     * @throws PropelException
      */
     public function deleteOptionOnProduct(int $optionId, int $productId, int $deletedBy = 1, bool $force = false): void
     {
@@ -177,11 +131,14 @@ class OptionProduct
             ->filterByOptionId($optionId)
             ->filterByProductId($productId)
             ->findOne();
-        if($productAvailableOption){
-            $addedBy = $productAvailableOption?->getOptionAddedBy();
-            if($deletedBy === self::ADDED_BY_PRODUCT || (!$force && count($addedBy) > 1)){
-                unset($addedBy[array_search($deletedBy, $addedBy, true)]);
-                $productAvailableOption->setOptionAddedBy(json_encode($addedBy, JSON_THROW_ON_ERROR))->save();
+
+        if(null !== $productAvailableOption){
+            if (!$force) {
+                $addedBy = $productAvailableOption->getOptionAddedBy();
+                if(count($addedBy) > 1) {
+                    unset($addedBy[array_search($deletedBy, $addedBy, true)]);
+                    $productAvailableOption->setOptionAddedBy($addedBy)->save();
+                }
             } else {
                 $productAvailableOption->delete();
             }
@@ -189,13 +146,8 @@ class OptionProduct
     }
 
     /**
-     * Removes an option on Category's products.
      *
-     * @param Category $category
-     * @param int $optionId
-     * @param bool $deleteAll
-     * @return void
-     * @throws PropelException | \JsonException
+     * @throws PropelException
      */
     public function deleteOptionOnCategoryTree(Category $category, int $optionId, bool $deleteAll): void
     {
@@ -224,12 +176,7 @@ class OptionProduct
     }
 
     /**
-     * Removes an option on Template's products.
-     *
-     * @param Template $template
-     * @param int $optionId
-     * @return void
-     * @throws PropelException|\JsonException
+     * @throws PropelException
      */
     public function deleteOptionOnTemplateProducts(Template $template, int $optionId): void
     {

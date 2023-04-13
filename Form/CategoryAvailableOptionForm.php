@@ -6,6 +6,7 @@ use Option\Model\Map\OptionProductTableMap;
 use Option\Option;
 use Propel\Runtime\Exception\PropelException;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\HiddenType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Thelia\Form\BaseForm;
@@ -36,6 +37,14 @@ class CategoryAvailableOptionForm extends BaseForm
                     'constraints' => [new NotBlank()],
                     'choices' => $this->getOptionChoices(),
                     'label' => $this->translator->trans('Options', [], Option::DOMAIN_NAME)
+                ]
+            )
+            ->add(
+                'add_all',
+                HiddenType::class,
+                [
+                    'required' => true,
+                    'constraints' => [new NotBlank()]
                 ]
             );
     }

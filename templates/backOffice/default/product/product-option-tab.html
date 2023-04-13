@@ -21,12 +21,11 @@
                     <h3 style="color: #FF9805">{format_money number=$BEST_TAXED_PRICE}</h3>
                 </div>
                 <div class="col-md-4">
-                    <a class="btn btn-danger pull-right" href="{url path="/admin/option/product/delete" product_id=$product_id option_product_id=$CURENT_OPTION_ID}"><span class="glyphicon glyphicon glyphicon-remove-circle"></a>
-                    <a class="btn btn-info pull-right" title="Modifier le prix de l'option pour ce produit"
-                       href="{url path="/admin/option/combination/list/" product_id=$product_id
-                       option_product_id=$OPTION_PRODUCT_ID}">
-                        <span class="glyphicon glyphicon glyphicon-cog">
-                    </a>
+                    <a class="btn btn-danger pull-right modal-open" id="delete" role="button"
+                       data-toggle="modal" data-target="#deleteOptionModal" title="Supprimer l'option">
+                        <span class="glyphicon glyphicon glyphicon-remove-circle"></span></a>
+                    {include file="product/include/modale-delete-product-option.html"}
+                    <a class="btn btn-info pull-right"><span class="glyphicon glyphicon glyphicon-cog"></a>
                     <a class="btn btn-default pull-right"><span class="glyphicon glyphicon glyphicon glyphicon-eye-open"></a>
                 </div>
             </div>
